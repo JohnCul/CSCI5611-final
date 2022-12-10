@@ -6,9 +6,12 @@ public class Car {
   public Vec2 position;
   public boolean isUser;
   public PVector velocity;
+  public PVector acceleration;
   public float speed;
   public float maxSpeed;
   public float rotationAccel;
+  public float rotationalVelo;
+  public float maxRotationalVelo;
   public float rotationY;
   public int nextInd;
   public ArrayList<Integer> path;
@@ -16,6 +19,7 @@ public class Car {
   public boolean finished = false;
   public int place;
   public boolean placed = false;
+  public int accelCoeff;
   
   public Car(Vec2 position, boolean isUser){
     this.position = position;

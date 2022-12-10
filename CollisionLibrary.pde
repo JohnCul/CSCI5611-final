@@ -124,10 +124,10 @@ hitInfo rayRectListIntersect(Vec2[] centers, float[] widths, float[] lengths, in
 
 // fourCorners: 0 = BL, 1 = TL, 2 = TR, 3 = BR
 // need to check 0-1, 1-2, 2-3, 3-0
-hitInfo rayCarListIntersect(Vec2[] centers, float[] widths, float[] lengths, float[] rotations, Vec2[] fourCorners, int carInd){
+hitInfo rayCarListIntersect(Vec2[] centers, float[] widths, float[] lengths, float[] rotations, boolean[] visibility, Vec2[] fourCorners, int carInd){
   hitInfo hit = new hitInfo();
   for (int i = 0; i < centers.length; i++){
-    if(i != carInd){
+    if(i != carInd && visibility[i]){
       Vec2 center = centers[i];
       float w = widths[i];
       float l = lengths[i];

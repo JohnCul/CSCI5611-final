@@ -256,7 +256,7 @@ void setup()
   obstacleL[23] = 200;
   obstacleVisibility[23] = true;
 
-  testPRM();
+  //testPRM();
 }
 
 
@@ -277,7 +277,7 @@ void generateRandomNodes(int carNum){
 void testPRM(){
   for(int i = 0; i < cars.length; i++){
     startPos[i] = cars[i].position;
-    goalPos[i] = new Vec2(cars[i].position.x, cars[i].position.y - 30);
+    goalPos[i] = new Vec2(cars[cars.length - 1].position.x, cars[cars.length - 1].position.y - 30);
     
     startTime = System.nanoTime(); //<>//
     generateRandomNodes(i);
@@ -495,6 +495,9 @@ void keyPressed()
   if(key == 's' || key == 'S' ){
     sDown =true;
   }
+  if(key == ' '){
+    paused = false;
+  }
   //camera.HandleKeyPressed();
 }
 
@@ -523,184 +526,199 @@ void keyReleased()
 
 void draw()
 {
-  time+=1;
-  if(upDown && cameraYaw < 0.2){
-    cameraYaw += .005;
-  }
-  if(downDown && cameraYaw > -0.2){
-    cameraYaw -= .005;
-  }
-  if(dDown && (wDown || sDown)){
-    cars[0].rotationAccel = -.2;
-  }
-  if(aDown && (wDown || sDown)){
-    cars[0].rotationAccel = .2;
-  }
-  if((dDown && aDown) || (!aDown && ! dDown)){
-    cars[0].rotationAccel = 0;
-    cars[0].rotationalVelo *= 0.8;
-  }
-  if(wDown){
-    cars[0].accelCoeff = 1;
-  }
-  else if(sDown){
-    cars[0].accelCoeff = -1;
+  if(time == 0){
+    testPRM();
+    time+=1;
   }else{
-    cars[0].accelCoeff = 0;
-    // simulates friction: slow it down if w or s not pressed
-    cars[0].velocity.mult(0.95);
-  }
-
-  camera.position = new PVector( cars[0].position.x - 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y - 20 * cos(cars[0].rotationY * PI / 180));
-  camera.theta = PI + cars[0].rotationY * PI / 180;
-  camera.phi = -0.2 + cameraYaw;
-  //Update agent if not paused
-  //if (!paused){
-  //  moveAgent(1.0/frameRate);
-  //}
-  background(255);
-  camera.Update(1.0/frameRate);
-  directionalLight(255.0, 255.0, 255.0, 0, 1, -1);
-  ambientLight(30, 30.0, 30.0);
-  moveCars();
-  // make the baseplate
-  strokeWeight(1);
-  stroke( 0, 0, 0 );
-  fill( 105, 105, 105 );
-  pushMatrix();
-  translate( 250, 0, 250 );
-  box( 500, 10, 500 );
-  popMatrix();
-  
-  // make the four walls
-  stroke( 0,0, 0 );
-  fill( 255,255, 255 );
-  pushMatrix();
-  translate( 250, -10, 1 );
-  rotateZ(3.14);
-  box( 500, 10, 2 );
-  popMatrix();
-  
-  fill( 255,255, 255 );
-  pushMatrix();
-  translate( 250, -10, 499 );
-  rotateZ(3.14);
-  box( 500, 10, 2 );
-  popMatrix();
-  
-  fill( 255,255, 255 );
-  pushMatrix();
-  translate( 1, -10, 250 );
-   rotateZ(3.14);
-  box( 2, 10, 496 );
-  popMatrix();
-  
-  fill( 255,255, 255 );
-  pushMatrix();
-  translate( 499, -10, 250 );
-  rotateZ(3.14);
-  box( 2, 10, 496 );
-  popMatrix();
-  
-  
-  ////Draw graph
-  //stroke(0,0,0);
-  //strokeWeight(1);
-  //for (int i = 0; i < numNodes; i++){
-  //  for (int j : neighbors[i]){
-  //    line(nodePos[i].x,-10,nodePos[i].y,nodePos[j].x,-10,nodePos[j].y);
-  //  }
-  //}
-  
-  //starting/finish line
-  for(int i = 0; i < 16; i++){
-    if(i%2 == 0){
-      fill( 0,0, 0 );
-    }else{
-      fill( 255,255,255 );
+    time+=1;
+    if(upDown && cameraYaw < 0.2){
+      cameraYaw += .005;
     }
-    pushMatrix();
-    translate( 80- 5*i, -5, 82.5 );
-    //rotateZ(3.14);
-    box( 5, 3, 5 );
-    popMatrix();
-  }
-  //starting/finish line
-  for(int i = 0; i < 16; i++){
-    if(i%2 == 1){
-      fill( 0,0, 0 );
-    }else{
-      fill( 255,255,255 );
+    if(downDown && cameraYaw > -0.2){
+      cameraYaw -= .005;
     }
+    if(dDown && (wDown || sDown)){
+      cars[0].rotationAccel = -.2;
+    }
+    if(aDown && (wDown || sDown)){
+      cars[0].rotationAccel = .2;
+    }
+    if((dDown && aDown) || (!aDown && ! dDown)){
+      cars[0].rotationAccel = 0;
+      cars[0].rotationalVelo *= 0.8;
+    }
+    if(wDown){
+      cars[0].accelCoeff = 1;
+    }
+    else if(sDown){
+      cars[0].accelCoeff = -1;
+    }else{
+      cars[0].accelCoeff = 0;
+      // simulates friction: slow it down if w or s not pressed
+      cars[0].velocity.mult(0.95);
+    }
+  
+    camera.position = new PVector( cars[0].position.x - 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y - 20 * cos(cars[0].rotationY * PI / 180));
+    camera.theta = PI + cars[0].rotationY * PI / 180;
+    camera.phi = -0.2 + cameraYaw;
+    //Update agent if not paused
+    if (!paused){
+      moveCars();
+    }
+    background(255);
+    camera.Update(1.0/frameRate);
+    directionalLight(255.0, 255.0, 255.0, 0, 1, -1);
+    ambientLight(30, 30.0, 30.0);
+    // make the baseplate
+    strokeWeight(1);
+    stroke( 0, 0, 0 );
+    fill( 105, 105, 105 );
     pushMatrix();
-    translate( 80- 5*i, -5, 77.5 );
-    //rotateZ(3.14);
-    box( 5, 3, 5 );
+    translate( 250, 0, 250 );
+    box( 500, 10, 500 );
     popMatrix();
-  }
-  
-  
-  //for(int i = 0; i < cars.length; i++){
-  //  stroke( 0,0, 0 );
-  //  fill( i * 40 ,255 - i * 40, 255 - i * 40 );
-  //  pushMatrix();
-  //  translate( startPos[i].x, -10, startPos[i].y );
-  //  box( 2,10,2 );
-  //  popMatrix();
-  //  stroke( 0,0, 0 );
-  //  pushMatrix();
-  //  translate( goalPos[i].x, -10, goalPos[i].y );
-  //  box( 2,10,2 );
-  //  popMatrix();
     
-  //    //show the nodes that it uses
-  //  for(int j = 0; j < paths[i].size(); j++){
-  //    pushMatrix();
-  //    translate( nodePos[i][paths[i].get(j)].x, -10, nodePos[i][paths[i].get(j)].y );
-  //    box( 3, 20, 3 );
-  //    popMatrix();
-  //  }
-  //}
-  
-  
-  //for(int i = 0; i < nodePos[0].length; i++){
-  //  stroke( 0,0, 0 );
-  //  fill( 255,255, 255 );
-  //  pushMatrix();
-  //  translate( nodePos[0][i].x, -10, nodePos[0][i].y );
-  //  box( 5, 5, 5 );
-  //  popMatrix();
-  //}
- 
-
-  copCarMesh.position = new PVector(carPos[0].x, -8, carPos[0].y);
-  copCarMesh.rotation = new PVector(0, cars[0].rotationY, 180);
-  copCarMesh.draw();
-  
-  car1Mesh.position = new PVector(carPos[1].x, -5, carPos[1].y);
-  car1Mesh.rotation = new PVector(0, cars[1].rotationY, 180);
-  car1Mesh.draw();
-  
-  car2Mesh.position = new PVector(carPos[2].x, -5, carPos[2].y);
-  car2Mesh.rotation = new PVector(0, cars[2].rotationY, 180);
-  car2Mesh.draw();
-  
-  car3Mesh.position = new PVector(carPos[3].x, -5, carPos[3].y);
-  car3Mesh.rotation = new PVector(0, cars[3].rotationY, 180);
-  car3Mesh.draw();
-  
-  car4Mesh.position = new PVector(carPos[4].x, -5, carPos[4].y);
-  car4Mesh.rotation = new PVector(0, cars[4].rotationY, 180);
-  car4Mesh.draw();
-  
-  for(int i = 0; i < obstaclePos.length; i++){
-    if(obstacleVisibility[i]){
-      noStroke();
-      fill( 0,0, 255 );
+    // make the four walls
+    stroke( 0,0, 0 );
+    fill( 255,255, 255 );
+    pushMatrix();
+    translate( 250, -10, 1 );
+    rotateZ(3.14);
+    box( 500, 10, 2 );
+    popMatrix();
+    
+    fill( 255,255, 255 );
+    pushMatrix();
+    translate( 250, -10, 499 );
+    rotateZ(3.14);
+    box( 500, 10, 2 );
+    popMatrix();
+    
+    fill( 255,255, 255 );
+    pushMatrix();
+    translate( 1, -10, 250 );
+     rotateZ(3.14);
+    box( 2, 10, 496 );
+    popMatrix();
+    
+    fill( 255,255, 255 );
+    pushMatrix();
+    translate( 499, -10, 250 );
+    rotateZ(3.14);
+    box( 2, 10, 496 );
+    popMatrix();
+    
+    
+    ////Draw graph
+    //stroke(0,0,0);
+    //strokeWeight(1);
+    //for (int i = 0; i < numNodes; i++){
+    //  for (int j : neighbors[i]){
+    //    line(nodePos[i].x,-10,nodePos[i].y,nodePos[j].x,-10,nodePos[j].y);
+    //  }
+    //}
+    
+    //starting/finish line
+    for(int i = 0; i < 16; i++){
+      if(i%2 == 0){
+        fill( 0,0, 0 );
+      }else{
+        fill( 255,255,255 );
+      }
       pushMatrix();
-      translate( obstaclePos[i].x, -10, obstaclePos[i].y );
-      box( obstacleW[i], 40, obstacleL[i] );
+      translate( 80- 5*i, -5, 82.5 );
+      //rotateZ(3.14);
+      box( 5, 3, 5 );
       popMatrix();
     }
+    //starting/finish line
+    for(int i = 0; i < 16; i++){
+      if(i%2 == 1){
+        fill( 0,0, 0 );
+      }else{
+        fill( 255,255,255 );
+      }
+      pushMatrix();
+      translate( 80- 5*i, -5, 77.5 );
+      //rotateZ(3.14);
+      box( 5, 3, 5 );
+      popMatrix();
+    }
+    
+    
+    //for(int i = 0; i < cars.length; i++){
+    //  stroke( 0,0, 0 );
+    //  fill( i * 40 ,255 - i * 40, 255 - i * 40 );
+    //  pushMatrix();
+    //  translate( startPos[i].x, -10, startPos[i].y );
+    //  box( 2,10,2 );
+    //  popMatrix();
+    //  stroke( 0,0, 0 );
+    //  pushMatrix();
+    //  translate( goalPos[i].x, -10, goalPos[i].y );
+    //  box( 2,10,2 );
+    //  popMatrix();
+      
+    //    //show the nodes that it uses
+    //  for(int j = 0; j < paths[i].size(); j++){
+    //    pushMatrix();
+    //    translate( nodePos[i][paths[i].get(j)].x, -10, nodePos[i][paths[i].get(j)].y );
+    //    box( 3, 20, 3 );
+    //    popMatrix();
+    //  }
+    //}
+    
+    
+    //for(int i = 0; i < nodePos[0].length; i++){
+    //  stroke( 0,0, 0 );
+    //  fill( 255,255, 255 );
+    //  pushMatrix();
+    //  translate( nodePos[0][i].x, -10, nodePos[0][i].y );
+    //  box( 5, 5, 5 );
+    //  popMatrix();
+    //}
+   
+  
+    copCarMesh.position = new PVector(carPos[0].x, -8, carPos[0].y);
+    copCarMesh.rotation = new PVector(0, cars[0].rotationY, 180);
+    copCarMesh.draw();
+    
+    car1Mesh.position = new PVector(carPos[1].x, -5, carPos[1].y);
+    car1Mesh.rotation = new PVector(0, cars[1].rotationY, 180);
+    car1Mesh.draw();
+    
+    car2Mesh.position = new PVector(carPos[2].x, -5, carPos[2].y);
+    car2Mesh.rotation = new PVector(0, cars[2].rotationY, 180);
+    car2Mesh.draw();
+    
+    car3Mesh.position = new PVector(carPos[3].x, -5, carPos[3].y);
+    car3Mesh.rotation = new PVector(0, cars[3].rotationY, 180);
+    car3Mesh.draw();
+    
+    car4Mesh.position = new PVector(carPos[4].x, -5, carPos[4].y);
+    car4Mesh.rotation = new PVector(0, cars[4].rotationY, 180);
+    car4Mesh.draw();
+    
+    for(int i = 0; i < obstaclePos.length; i++){
+      if(obstacleVisibility[i]){
+        noStroke();
+        fill( 0,0, 255 );
+        pushMatrix();
+        translate( obstaclePos[i].x, -10, obstaclePos[i].y );
+        box( obstacleW[i], 40, obstacleL[i] );
+        popMatrix();
+      }
+    }
   }
+  
+    pushMatrix();
+    translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+    rotateY(camera.theta);
+    hint(DISABLE_DEPTH_TEST);
+    textSize(70);
+    
+    fill(0,0,0);
+    text("LAP " + (int)(cars[0].numLaps + 1)+ "/3", 125, 0);
+    hint(ENABLE_DEPTH_TEST);
+    popMatrix();
 }

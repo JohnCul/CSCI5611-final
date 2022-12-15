@@ -116,7 +116,7 @@ ArrayList<Integer> runAStar(Vec2[] nodePos, Vec2 startPos, Vec2 goalPos, int num
   ArrayList<QueueItem> usedQueue = new ArrayList();
   int queueIdCount = 0;
   ArrayList<Integer> path = new ArrayList();
-  float heuristic_coefficient = 1;
+  float heuristic_coefficient = 0;
   for (int i = 0; i < numNodes; i++) { //Clear visit tags and parent pointers
     visited[i] = false;
     parent[i] = -1; //No parent yet

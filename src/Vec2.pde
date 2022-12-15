@@ -96,3 +96,7 @@ float dot(Vec2 a, Vec2 b){
 Vec2 projAB(Vec2 a, Vec2 b){
   return b.times(a.x*b.x + a.y*b.y);
 }
+
+Vec2 perpendicular(Vec2 a){
+  return new Vec2(-a.y,a.x);
+}

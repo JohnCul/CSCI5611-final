@@ -169,7 +169,7 @@ hitInfo rayCarListIntersect(Vec2[] centers, float[] widths, float[] lengths, flo
 
 hitInfo rayCarIntersect(Vec2 corner, float w, float l, float rotation, Vec2 l_start, Vec2 l_end){
   hitInfo hit = new hitInfo();
-  boolean isHit = LineIntersectsRect(l_start, l_end, corner, w, l, rotation * PI / 180);
+  boolean isHit = LineIntersectsRect(l_start, l_end, corner, w, l, PI - (rotation * PI / 180));
   hit.hit = isHit;
   
   return hit;
@@ -184,25 +184,9 @@ hitInfo rayRectIntersect(Vec2 corner, float w, float l, Vec2 l_start, Vec2 l_end
   return hit;
 }
 
-//boolean lineRect(float x1, float y1, float x2, float y2, float rx, float ry, float rw, float rh) {
-
-//  // check if the line has hit any of the rectangle's sides
-//  // uses the Line/Line function below
-//  boolean left =   lineLine(x1,y1,x2,y2, rx,ry,rx, ry+rh);
-//  boolean right =  lineLine(x1,y1,x2,y2, rx+rw,ry, rx+rw,ry+rh);
-//  boolean top =    lineLine(x1,y1,x2,y2, rx,ry, rx+rw,ry);
-//  boolean bottom = lineLine(x1,y1,x2,y2, rx,ry+rh, rx+rw,ry+rh);
-
-//  // if ANY of the above are true, the line
-//  // has hit the rectangle
-//  if (left || right || top || bottom) {
-//    return true;
-//  }
-//  return false;
-//}
 
 public boolean LineIntersectsRect(Vec2 p1, Vec2 p2, Vec2 r, float w, float h, float rotation){
-  float e = 2;
+  float e = 0;
   return LineIntersectsLine(p1, p2, new Vec2(r.x - w/2 * cos(rotation) + h/2 * sin(rotation) - e, r.y - h/2 * cos(rotation) - w/2 * sin(rotation) - e), new Vec2(r.x + w/2 * cos(rotation) + h/2 * sin(rotation) + e, r.y - h/2 * cos(rotation) + w / 2 * sin(rotation) - e)) ||
          LineIntersectsLine(p1, p2, new Vec2(r.x + w/2 * cos(rotation) + h/2 * sin(rotation) + e, r.y - h/2 * cos(rotation) + w / 2 * sin(rotation) - e), new Vec2(r.x + w/2 * cos(rotation) - h/2 * sin(rotation) + e, r.y + h/2 * cos(rotation) - w/2 * sin(rotation) + e)) ||
          LineIntersectsLine(p1, p2, new Vec2(r.x + w/2 * cos(rotation) - h/2 * sin(rotation) + e, r.y + h/2 * cos(rotation) - w/2 * sin(rotation) + e), new Vec2(r.x - w/2 * cos(rotation) + h/2 * sin(rotation) - e, r.y + h/2 * cos(rotation) - w/2 * sin(rotation)+ e)) ||
@@ -229,4 +213,49 @@ public boolean LineIntersectsLine(Vec2 l1p1, Vec2 l1p2, Vec2 l2p1, Vec2 l2p2){
     }
 
     return true;
+}
+
+
+// fourCorners: 0 = BL, 1 = TL, 2 = TR, 3 = BR
+// need to check 0-1, 1-2, 2-3, 3-0
+hitInfo rayCarObstacleListIntersect(Vec2[] centers, float[] widths, float[] lengths, float[] rotations, boolean[] visibility, Vec2[] fourCorners, int carInd){
+  hitInfo hit = new hitInfo();
+  for (int i = 0; i < centers.length; i++){
+    if(i != carInd && visibility[i]){
+      Vec2 center = centers[i];
+      float w = widths[i];
+      float l = lengths[i];
+      
+      
+      boolean rectHit = pointInRect(center, w, l, fourCorners[0], 0.0);
+      //println(rectHit.hit);
+      if (rectHit){
+        hit.hit = true;
+        hit.t = 0;
+        return hit;
+      }
+      rectHit = pointInRect(center, w, l, fourCorners[1], 0.0);
+      //println(rectHit.hit);
+      if (rectHit){
+        hit.hit = true;
+        hit.t = 1;
+        return hit;
+      }
+      rectHit = pointInRect(center, w, l, fourCorners[2], 0.0);
+      //println(rectHit.hit);
+      if (rectHit){
+        hit.hit = true;
+        hit.t = 2;
+        return hit;
+      }
+      rectHit = pointInRect(center, w, l, fourCorners[3], 0.0);
+      //println(rectHit.hit);
+      if (rectHit){
+        hit.hit = true;
+        hit.t = 3;
+        return hit;
+      }
+    }
+  }
+  return hit;
 }

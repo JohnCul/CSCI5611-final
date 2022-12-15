@@ -3,16 +3,18 @@
 int numObstacles = 24;
 int place = 1;
 Camera camera;
-ObjMesh copCarMesh;
+ObjMesh car0Mesh;
 ObjMesh car1Mesh;
 ObjMesh car2Mesh;
 ObjMesh car3Mesh;
 ObjMesh car4Mesh;
 float dt = 0.05;
+Table carData;
 Car[] cars;
 int time;
 int userCarIndex;
 Vec2[] carPos;
+int[] carIDs;
 float[] carWidths;
 float[] carLengths;
 float[] carRotations;
@@ -26,6 +28,8 @@ Vec2[] obstaclePos;
 float[] obstacleW;
 float[] obstacleL;
 boolean[] obstacleVisibility;
+
+Vec2[] car0corners;
 
 Vec2 userFinishPos;
 float userFinishW;
@@ -57,6 +61,11 @@ float shipSpeed = 100;
 void setup()
 {
   size(600, 600, P3D);
+  carData = setUpCarStats();
+  car0corners = new Vec2[4];
+  for(int i = 0; i < car0corners.length; i++){
+    car0corners[i] = new Vec2(0,0);
+  }
   userCarIndex = 0;
   userFinishPos = new Vec2(40,80);
   userFinishW = 80;
@@ -72,6 +81,7 @@ void setup()
   carLengths = new float[5];
   carRotations = new float[5];
   cars = new Car[5];
+  carIDs = new int[5];
   carVisibility = new boolean[5];
   paths = new ArrayList[5];
   wDown = false;
@@ -82,7 +92,13 @@ void setup()
   downDown  = false;
   //println("Press the Space Bar to set sail, press R to regenerate the system");
   //println();
+  // get the ID's of the cars that will race
   for(int i = 0; i < 5; i++){
+    carIDs[i] = (int) (random(0,1) * 6.99);
+  }
+  
+  for(int i = 0; i < 5; i++){
+    int carIndex = carData.getInt(carIDs[i], "id");
     paths[i] = new ArrayList<Integer>();
     boolean isUser = false;
     carPos[i] = new Vec2(10 + 13 * i, 60);
@@ -90,31 +106,32 @@ void setup()
       isUser = true;
     }
     cars[i] = new Car(carPos[i], isUser);
-    cars[i].accelCoeff = 1;
+    cars[i].accelCoeff = carData.getFloat(carIndex, "acceleration");
     cars[i].velocity = new PVector(0,0,0);
     cars[i].rotationalVelo = 0;
     cars[i].maxRotationalVelo = 4;
     cars[i].acceleration = new PVector(0,0,0);
     cars[i].speed = 0;
     carVisibility[i] = true;
-    cars[i].maxSpeed = random(.75,.9);
+    cars[i].maxSpeed = carData.getFloat(carIndex, "maxSpeed");
     carRotations[i] = 0;
-    carLengths[i] = 6.5;
-    carWidths[i] = 4;
+    carLengths[i] = carData.getFloat(carIndex, "length");
+    carWidths[i] = carData.getFloat(carIndex, "width");
     if(i==0){
       cars[i].accelCoeff = 0;
       cars[i].numLaps = -1;
     }
   }
-  copCarMesh = new ObjMesh("Cop.obj");
-  copCarMesh.scale = 3;
-  car1Mesh = new ObjMesh("NormalCar1.obj");
+  car0Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[0], "id"), "mesh"));
+  println(carData.getString(carData.getInt(carIDs[0], "id"), "mesh"));
+  car0Mesh.scale = 3;
+  car1Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[1], "id"), "mesh"));
   car1Mesh.scale = 3;
-  car2Mesh = new ObjMesh("NormalCar2.obj");
+  car2Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[2], "id"), "mesh"));
   car2Mesh.scale = 3;
-  car3Mesh = new ObjMesh("SportsCar.obj");
+  car3Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[3], "id"), "mesh"));
   car3Mesh.scale = 3;
-  car4Mesh = new ObjMesh("SportsCar2.obj");
+  car4Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[4], "id"), "mesh"));
   car4Mesh.scale = 3;
   
   camera.position = new PVector( cars[0].position.x * cos(cars[0].rotationY * PI / 180) + 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y * sin(cars[0].rotationY * PI / 180) + 20 * cos(cars[0].rotationY * PI / 180));
@@ -259,6 +276,81 @@ void setup()
   //testPRM();
 }
 
+Table setUpCarStats(){
+  Table stats = new Table();
+  stats.addColumn("id");
+  stats.addColumn("acceleration");
+  stats.addColumn("maxSpeed");
+  stats.addColumn("width");
+  stats.addColumn("length");
+  stats.addColumn("mesh");
+  
+  // car 0: police car
+  TableRow newRow = stats.addRow();
+  newRow.setInt("id", 0);
+  newRow.setFloat("acceleration", 1);
+  newRow.setFloat("maxSpeed", random(1.0,1.1));
+  newRow.setFloat("width", 5);
+  newRow.setFloat("length", 11);
+  newRow.setString("mesh", "Cop.obj");
+  
+  //car 1: normal car 1
+  TableRow newRow2 = stats.addRow();
+  newRow2.setInt("id", 1);
+  newRow2.setFloat("acceleration", .5);
+  newRow2.setFloat("maxSpeed", random(.5,.7));
+  newRow2.setFloat("width", 4);
+  newRow2.setFloat("length",11);
+  newRow2.setString("mesh", "NormalCar1.obj");
+  
+  //car 2: normal car 2
+  TableRow newRow3 = stats.addRow();
+  newRow3.setInt("id", 2);
+  newRow3.setFloat("acceleration", .8);
+  newRow3.setFloat("maxSpeed", random(.6,.8));
+  newRow3.setFloat("width", 4);
+  newRow3.setFloat("length",11);
+  newRow3.setString("mesh", "NormalCar2.obj");
+  
+  //car 3: sports car 1
+  TableRow newRow4 = stats.addRow();
+  newRow4.setInt("id", 3);
+  newRow4.setFloat("acceleration", 1.1);
+  newRow4.setFloat("maxSpeed", random(0.8,0.9));
+  newRow4.setFloat("width", 4);
+  newRow4.setFloat("length", 10.5);
+  newRow4.setString("mesh", "SportsCar.obj");
+  
+  //car 4: sports car 2
+  TableRow newRow5 = stats.addRow();
+  newRow5.setInt("id", 4);
+  newRow5.setFloat("acceleration", 1.0);
+  newRow5.setFloat("maxSpeed", random(0.7,0.85));
+  newRow5.setFloat("width", 5);
+  newRow5.setFloat("length", 11);
+  newRow5.setString("mesh", "SportsCar2.obj");
+  
+  //car 5: taxi
+  TableRow newRow8 = stats.addRow();
+  newRow8.setInt("id", 5);
+  newRow8.setFloat("acceleration", 1.2);
+  newRow8.setFloat("maxSpeed", random(0.8,0.9));
+  newRow8.setFloat("width", 5.5);
+  newRow8.setFloat("length", 11);
+  newRow8.setString("mesh", "Taxi.obj");
+  
+  //car 6: SUV
+  TableRow newRow7 = stats.addRow();
+  newRow7.setInt("id", 6);
+  newRow7.setFloat("acceleration", .8);
+  newRow7.setFloat("maxSpeed", random(.5,.6));
+  newRow7.setFloat("width", 5);
+  newRow7.setFloat("length", 11);
+  newRow7.setString("mesh", "SUV.obj");
+
+  return stats;
+}
+
 
 //Generate non-colliding PRM nodes
 void generateRandomNodes(int carNum){
@@ -369,9 +461,9 @@ public void moveCars(){
        //if(abs(difference) > 20){
        //  println(i,", ",cars[i].rotationY,", ",desiredAngle,", ",difference);
        //}
-       if(difference > 0.2){
+       if(difference > .02){
          cars[i].rotationAccel = -3;
-       }else if(difference < 0.2){
+       }else if(difference < .02){
          cars[i].rotationAccel = 3;
        }else{
          cars[i].rotationAccel = 0;
@@ -423,11 +515,18 @@ public void moveCars(){
     Vec2 c = carPos[i];
     float w = carWidths[i];
     float l = carLengths[i];
-    float rot = carRotations[i] * PI / 180;
+    //float rot = PI + carRotations[i] * PI / 180;
+    float rot = PI - (carRotations[i]* PI / 180);
     fourCorners[0] = new Vec2(c.x - ((w/2)*cos(rot)) + ((l/2) * sin(rot)) , c.y - ((w/2)*sin(rot)) - ((l/2) * cos(rot)) );
     fourCorners[1] = new Vec2(c.x - ((w/2)*cos(rot)) - ((l/2) * sin(rot)) , c.y  - ((w/2) * sin(rot)) + ((l/2) * cos(rot)));
     fourCorners[2] = new Vec2(c.x + ((w/2)*cos(rot)) - ((l/2) * sin(rot)) , c.y + ((w/2)*sin(rot)) + ((l/2) * cos(rot)) );
     fourCorners[3] = new Vec2(c.x + ((w/2)*cos(rot)) + ((l/2) * sin(rot)) , c.y + ((w/2)*sin(rot)) - ((l/2)*cos(rot)));
+    if( i==0){
+      car0corners[0] = fourCorners[0];
+      car0corners[1] = fourCorners[1];
+      car0corners[2] = fourCorners[2];
+      car0corners[3] = fourCorners[3];
+    }
     
     hitInfo collision = rayCarListIntersect(carPos, carWidths, carLengths, carRotations, carVisibility, fourCorners, i);
     if(collision.hit){
@@ -444,16 +543,24 @@ public void moveCars(){
     }
     
     // check for collisions with walls
-    collision = rayCarListIntersect(obstaclePos, obstacleW, obstacleL, obstacleRot, obstacleVisibility, fourCorners, -1);
+    collision = rayCarObstacleListIntersect(obstaclePos, obstacleW, obstacleL, obstacleRot, obstacleVisibility, fourCorners, -1);
     if(collision.hit){
       // CHANGE THIS IF NEEDED
       //println("collision between " + i + ", " + collision.t + " at time " + time);
-      Vec2 betweenWall = carPos[i].minus(obstaclePos[(int) collision.t]);
-      betweenWall.normalize();
+      Vec2 r = carPos[i].minus(fourCorners[(int) collision.t]);
+      Vec2 perpR = perpendicular(r);
+      cars[i].position.add(r.times(0.1));
       cars[i].velocity = new PVector(0,0,0);
-      cars[i].velocity.add(new PVector(betweenWall.x * 0.1, 0, betweenWall.y * 0.1));
-      cars[i].position.add(betweenWall.times(0.1));
+      
+      cars[i].velocity.add(new PVector(r.x * 0.05, 0, r.y * 0.05));
       carPos[i] = cars[i].position;
+      
+      //Vec2 betweenWall = carPos[i].minus(obstaclePos[(int) collision.t]);
+      //betweenWall.normalize();
+      //cars[i].velocity = new PVector(0,0,0);
+      //cars[i].velocity.add(new PVector(betweenWall.x * 0.1, 0, betweenWall.y * 0.1));
+      //cars[i].position.add(betweenWall.times(0.1));
+      //carPos[i] = cars[i].position;
       
     }
     
@@ -526,15 +633,22 @@ void keyReleased()
 
 void draw()
 {
+  background(255);
+  camera.Update(1.0/frameRate);
+  directionalLight(100.0, 100.0, 100.0, 0, 1, -1);
+  ambientLight(155, 155.0, 155.0);
+  camera.position = new PVector( cars[0].position.x - 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y - 20 * cos(cars[0].rotationY * PI / 180));
+  camera.theta = PI + cars[0].rotationY * PI / 180;
+  camera.phi = -0.2 + cameraYaw;
   if(time == 0){
     testPRM();
     time+=1;
   }else{
     time+=1;
-    if(upDown && cameraYaw < 0.2){
+    if(upDown && cameraYaw < 0.4){
       cameraYaw += .005;
     }
-    if(downDown && cameraYaw > -0.2){
+    if(downDown && cameraYaw > -0.4){
       cameraYaw -= .005;
     }
     if(dDown && (wDown || sDown)){
@@ -548,27 +662,20 @@ void draw()
       cars[0].rotationalVelo *= 0.8;
     }
     if(wDown){
-      cars[0].accelCoeff = 1;
+      cars[0].accelCoeff = carData.getFloat(carData.getInt(carIDs[0], "id"), "acceleration");
     }
     else if(sDown){
-      cars[0].accelCoeff = -1;
+      cars[0].accelCoeff = -1 * carData.getFloat(carData.getInt(carIDs[0], "id"), "acceleration");
     }else{
       cars[0].accelCoeff = 0;
+      cars[0].rotationAccel = 0;
       // simulates friction: slow it down if w or s not pressed
       cars[0].velocity.mult(0.95);
     }
-  
-    camera.position = new PVector( cars[0].position.x - 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y - 20 * cos(cars[0].rotationY * PI / 180));
-    camera.theta = PI + cars[0].rotationY * PI / 180;
-    camera.phi = -0.2 + cameraYaw;
     //Update agent if not paused
     if (!paused){
-      moveCars();
+      moveCars(); 
     }
-    background(255);
-    camera.Update(1.0/frameRate);
-    directionalLight(255.0, 255.0, 255.0, 0, 1, -1);
-    ambientLight(30, 30.0, 30.0);
     // make the baseplate
     strokeWeight(1);
     stroke( 0, 0, 0 );
@@ -626,7 +733,7 @@ void draw()
         fill( 255,255,255 );
       }
       pushMatrix();
-      translate( 80- 5*i, -5, 82.5 );
+      translate( 80- 5*i, -5, 83 );
       //rotateZ(3.14);
       box( 5, 3, 5 );
       popMatrix();
@@ -639,49 +746,18 @@ void draw()
         fill( 255,255,255 );
       }
       pushMatrix();
-      translate( 80- 5*i, -5, 77.5 );
+      translate( 80- 5*i, -5, 78 );
       //rotateZ(3.14);
       box( 5, 3, 5 );
       popMatrix();
     }
     
-    
-    //for(int i = 0; i < cars.length; i++){
-    //  stroke( 0,0, 0 );
-    //  fill( i * 40 ,255 - i * 40, 255 - i * 40 );
-    //  pushMatrix();
-    //  translate( startPos[i].x, -10, startPos[i].y );
-    //  box( 2,10,2 );
-    //  popMatrix();
-    //  stroke( 0,0, 0 );
-    //  pushMatrix();
-    //  translate( goalPos[i].x, -10, goalPos[i].y );
-    //  box( 2,10,2 );
-    //  popMatrix();
-      
-    //    //show the nodes that it uses
-    //  for(int j = 0; j < paths[i].size(); j++){
-    //    pushMatrix();
-    //    translate( nodePos[i][paths[i].get(j)].x, -10, nodePos[i][paths[i].get(j)].y );
-    //    box( 3, 20, 3 );
-    //    popMatrix();
-    //  }
-    //}
-    
-    
-    //for(int i = 0; i < nodePos[0].length; i++){
-    //  stroke( 0,0, 0 );
-    //  fill( 255,255, 255 );
-    //  pushMatrix();
-    //  translate( nodePos[0][i].x, -10, nodePos[0][i].y );
-    //  box( 5, 5, 5 );
-    //  popMatrix();
-    //}
    
   
-    copCarMesh.position = new PVector(carPos[0].x, -8, carPos[0].y);
-    copCarMesh.rotation = new PVector(0, cars[0].rotationY, 180);
-    copCarMesh.draw();
+    car0Mesh.position = new PVector(carPos[0].x, -5, carPos[0].y);
+    car0Mesh.rotation = new PVector(0, cars[0].rotationY, 180);
+    car0Mesh.draw();
+    
     
     car1Mesh.position = new PVector(carPos[1].x, -5, carPos[1].y);
     car1Mesh.rotation = new PVector(0, cars[1].rotationY, 180);
@@ -701,24 +777,104 @@ void draw()
     
     for(int i = 0; i < obstaclePos.length; i++){
       if(obstacleVisibility[i]){
-        noStroke();
+        //noStroke();
         fill( 0,0, 255 );
         pushMatrix();
-        translate( obstaclePos[i].x, -10, obstaclePos[i].y );
-        box( obstacleW[i], 40, obstacleL[i] );
+        translate( obstaclePos[i].x, -20, obstaclePos[i].y );
+        box( obstacleW[i], 30, obstacleL[i] );
         popMatrix();
       }
     }
   }
+   //<>//
   
+    // num laps
     pushMatrix();
     translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
     rotateY(camera.theta);
     hint(DISABLE_DEPTH_TEST);
+   
+    int numToDisplay = (int)(cars[0].numLaps + 1);
+    if(cars[0].finished){
+      fill(0,0,0);
+      textSize(40);
+      numToDisplay = 3;
+      text("FINISHED PLACE " + cars[0].place, -370, 0);
+    }
+     fill(255,100,100);
     textSize(70);
-    
-    fill(0,0,0);
-    text("LAP " + (int)(cars[0].numLaps + 1)+ "/3", 125, 0);
+    text("LAP " + numToDisplay + "/3", 125, 0);
     hint(ENABLE_DEPTH_TEST);
     popMatrix();
+    
+    
+    //map
+    pushMatrix();
+    translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+    rotateY(camera.theta);
+    hint(DISABLE_DEPTH_TEST);
+    rotateZ(PI / 2);
+    rotateX(PI / 2);
+    rotateY(PI / 2);
+    translate(-100,0,-100);
+    fill( 0,255, 50 );
+    for(int i = 0; i < carPos.length; i++){
+      translate(carPos[i].x / 5, 0, carPos[i].y / 5);
+      sphere(2);
+      translate(-carPos[i].x / 5, 0, -carPos[i].y / 5);
+    }
+    for(int i = 0; i < obstaclePos.length; i++){
+      if(obstacleVisibility[i]){
+        noStroke();
+        fill( 255,0, 255 );
+        pushMatrix();
+        translate( obstaclePos[i].x / 5, 0, obstaclePos[i].y / 5 );
+        box( obstacleW[i] / 5, 8, obstacleL[i] / 5 );
+        popMatrix();
+      }
+    }
+    //starting/finish line
+    for(int i = 0; i < 16; i++){
+      if(i%2 == 0){
+        fill( 0,0, 0 );
+      }else{
+        fill( 255,255,255 );
+      }
+      pushMatrix();
+      translate( (80- 5*i) / 5, 0, 82.5 /5);
+      //rotateZ(3.14);
+      box( 1, .6, 1 );
+      popMatrix();
+    }
+    //starting/finish line
+    for(int i = 0; i < 16; i++){
+      if(i%2 == 1){
+        fill( 0,0, 0 );
+      }else{
+        fill( 255,255,255 );
+      }
+      pushMatrix();
+      translate( (80- 5*i) / 5, 0, 77.5 /5);
+      //rotateZ(3.14);
+      box( 1, .6, 1 );
+      popMatrix();
+    }
+    hint(ENABLE_DEPTH_TEST);
+    popMatrix();
+    
+    if(paused){
+      //print("Paused");
+      pushMatrix();
+      translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), 0, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+      rotateY(camera.theta);
+      hint(DISABLE_DEPTH_TEST);
+      textSize(70);
+      
+      fill(255,100,100);
+      text("PRESS SPACE TO RACE", -350, 0);
+      hint(ENABLE_DEPTH_TEST);
+      popMatrix();
+    }
+    
+    
 }

@@ -19,7 +19,7 @@ public class Car {
   public boolean finished = false;
   public int place;
   public boolean placed = false;
-  public int accelCoeff;
+  public float accelCoeff;
   
   public Car(Vec2 position, boolean isUser){
     this.position = position;

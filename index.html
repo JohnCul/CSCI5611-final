@@ -71,7 +71,7 @@ Racing Simulator with AI opponents
 <p>
     In car movement, the AI cars move from node-to-node, keeping track of which node is next on their list to visit. There is path smoothing implemented, that allows
     the car to move past the desired node once it can see the node after it on the path. Once the cars get to the last node in the path, the path resets to target the first
-    node in the path. It's at this point that the car "completed" a lap. 
+    node in the path. It's at this point that the car "completed" a lap.
 </p>
 
 <h4>iii. Car Movement</h4>
@@ -90,6 +90,13 @@ Racing Simulator with AI opponents
     setting the angle equal to the modulus of the angle at the end. 
 </p>
 <img height=240 width="auto" src="./images/AIRotations.JPG">
+<p>
+    The user can only complete a lap after their car has passed the starting line AND been inside a zone on the opposite side of the map. This is to keep users from
+    cheating the game and doing circles at the starting line to gain laps. See the images below for a map view of the two zones, as well as the code that controlls 
+    lap incrementation for the user's car.
+</p>
+<img height=240 width="auto" src="./images/mapForUserLaps.JPG">
+<img height=240 width="auto" src="./images/userLaps.JPG">
 
 <h2>III. Video Game Aspects</h2>
 

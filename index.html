@@ -130,8 +130,37 @@ Racing Simulator with AI opponents
     gif of the progress from that phase of the project.
 </p>
 <img height=300 width="auto" src="./images/progress1gif.gif">
+<p>
+    Initially the car movement was not based on normal physics. There was no rotational acceleration or positional acceleration, and the car movement didn't look realistic.
+    After implementing the current physics and changing the size of the car models, I began to construct the current course. Building the maze with wall objects was not 
+    difficult but was time consuming. It was guess and check for every object. I expected to be able to add more creativity into the walls, adding textures and models instead
+    of plain blue walls, but I ran into the issue of adding pictures into the simulation. I could not get anything to load properly, so I decided to focus my efforts on 
+    implementing collisions.
+</p>
+<p>
+    Part of determining AI movememnt was figuring out the angles and rotational motion of the cars. One of the most difficult parts of the project was finding out the logic
+    behind the desired Angle and findDifference function. It was a headache trying to figure out which angles and offsets were needed to make it work, and was incredibly 
+    satisfying when it finally worked.
+</p>
+<p>
+    Collisions were the hardest and most time consuming part of the project. I looked online at different methods for implementing bounding box collisions, and found
+    the line intersection idea that was outlined in Section II. This method was effective in determining that there was a collision, but it didn't give me enough information
+    to resolve the collision in a graceful way. I then thought of a second way of detecting collisions that would provide more information about what direction to move the
+    car in. Since the cars are boxes, the only way they collide with a wall is if one of the four corners of the rectangle goes inside one of the walls. I used this to 
+    create a PointInBox approach to detecting wall-car collisions, returning the integer of the corner that is colliding with the wall. Having this information, the direction
+    of collision resolution can be found because it will be opposite of the side that the colliding corner was on. This can also be seen in the image in Section II.
+</p>
+<p>
+    After implementing collisions, I built the GUI. This was the last large major part of the simulation, and again was mostly guess-and-check work. Getting the GUI to 
+    face the car was the most difficult aspect, finding out how much to rotate and when to rotate, translate, and use the hint() function. The GUI is strange because
+    if the camera was in any other spot, you could see the GUI moving with the car in space. It is not glued to the user's screen, but floating above the car somewhere in space. 
+
+</p>
 
 <h2>V. Peer Feedback</h2>
+<p>
+    
+</p>
 
 <h2>VI. Related Work</h2>
 

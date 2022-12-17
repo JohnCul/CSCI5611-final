@@ -43,6 +43,9 @@ int userMiddleVisits;
 int numCollisions;
 int pathLength;
 
+int carStartTime;
+int carTime;
+
 int numNodes = 500;
 long startTime, endTime;
 int strokeWidth = 2;
@@ -123,7 +126,7 @@ void setup()
     }
   }
   car0Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[0], "id"), "mesh"));
-  println(carData.getString(carData.getInt(carIDs[0], "id"), "mesh"));
+  println("User got " + carData.getString(carData.getInt(carIDs[0], "id"), "mesh"));
   car0Mesh.scale = 3;
   car1Mesh = new ObjMesh(carData.getString(carData.getInt(carIDs[1], "id"), "mesh"));
   car1Mesh.scale = 3;
@@ -136,7 +139,7 @@ void setup()
   
   camera.position = new PVector( cars[0].position.x * cos(cars[0].rotationY * PI / 180) + 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y * sin(cars[0].rotationY * PI / 180) + 20 * cos(cars[0].rotationY * PI / 180));
   camera.phi = -0.2;
-  cameraYaw = 0.0;
+  cameraYaw = -0.1;
   
   // obstacles
   obstaclePos = new Vec2[numObstacles];
@@ -307,7 +310,7 @@ Table setUpCarStats(){
   TableRow newRow3 = stats.addRow();
   newRow3.setInt("id", 2);
   newRow3.setFloat("acceleration", .8);
-  newRow3.setFloat("maxSpeed", random(.6,.8));
+  newRow3.setFloat("maxSpeed", random(.6,.7));
   newRow3.setFloat("width", 4);
   newRow3.setFloat("length",11);
   newRow3.setString("mesh", "NormalCar2.obj");
@@ -393,7 +396,7 @@ void testPRM(){
     paths[i] = curPath;
     cars[i].path = curPath;
     endTime = System.nanoTime();
-    println("Path: ", curPath);
+    println("Car "+ i + " Path: ", curPath);
   }
 
 }
@@ -546,37 +549,45 @@ public void moveCars(){
     collision = rayCarObstacleListIntersect(obstaclePos, obstacleW, obstacleL, obstacleRot, obstacleVisibility, fourCorners, -1);
     if(collision.hit){
       // CHANGE THIS IF NEEDED
-      //println("collision between " + i + ", " + collision.t + " at time " + time);
-      Vec2 r = carPos[i].minus(fourCorners[(int) collision.t]);
-      Vec2 perpR = perpendicular(r);
-      cars[i].position.add(r.times(0.1));
+      int chosen  = 0;
+      if((int) collision.t == 0){
+        chosen = 1;
+      }else if((int) collision.t == 2){
+        chosen = 3;
+      }else if((int) collision.t == 3){
+        chosen = 2;
+      }
+      // find the nromal vector to "bounce off of"
+      Vec2 rHit = carPos[i].minus(fourCorners[(int) collision.t]);
+      Vec2 rOpposite = carPos[i].minus(fourCorners[chosen]);
+      Vec2 addedR = rHit.plus(rOpposite);
+      addedR.normalize();
+      //Vec2 perpR = perpendicular(r);
+      cars[i].position.add(addedR.times(0.25));
       cars[i].velocity = new PVector(0,0,0);
       
-      cars[i].velocity.add(new PVector(r.x * 0.05, 0, r.y * 0.05));
+      cars[i].velocity.add(new PVector(addedR.x * 0.5, 0, addedR.y * 0.5));
       carPos[i] = cars[i].position;
-      
-      //Vec2 betweenWall = carPos[i].minus(obstaclePos[(int) collision.t]);
-      //betweenWall.normalize();
-      //cars[i].velocity = new PVector(0,0,0);
-      //cars[i].velocity.add(new PVector(betweenWall.x * 0.1, 0, betweenWall.y * 0.1));
-      //cars[i].position.add(betweenWall.times(0.1));
-      //carPos[i] = cars[i].position;
       
     }
     
     
     if(cars[i].numLaps == 3 && !cars[i].finished){
         cars[i].finished = true;
-        println(i," finished!");
-      }
+        println("Car " + i + " finished!");
+    }
     else if(cars[i].position.y > 75 && cars[i].finished && !cars[i].placed){
       cars[i].place = place;
       cars[i].placed = true;
       place++;
-      println(i , " placed " + cars[i].place);
+      println("Car " + i , " placed " + cars[i].place);
         
     }
   }
+  
+  if(!cars[0].finished){
+      carTime = millis() - carStartTime;
+   }
 }
 
 //boolean shiftDown = false;
@@ -604,6 +615,7 @@ void keyPressed()
   }
   if(key == ' '){
     paused = false;
+    carStartTime = millis();
   }
   //camera.HandleKeyPressed();
 }
@@ -631,6 +643,17 @@ void keyReleased()
   //camera.HandleKeyReleased();
 }
 
+//Vec2 findPointOutsideOfObstacle(Vec2 cameraPos){
+//  Vec2 ret = cameraPos;
+//  while(pointInRectList(obstaclePos, obstacleW, obstacleL, obstaclePos.length, ret, 0)){
+//    Vec2 betweenCamAndCar = carPos[0].minus(cameraPos);
+//    camera.position.add(new PVector(betweenCamAndCar.x * 0.02, 0, betweenCamAndCar.y * 0.02));
+//    ret = new Vec2(camera.position.x, camera.position.z);
+//  }
+//  return ret;
+//}
+
+
 void draw()
 {
   background(255);
@@ -638,19 +661,27 @@ void draw()
   directionalLight(100.0, 100.0, 100.0, 0, 1, -1);
   ambientLight(155, 155.0, 155.0);
   camera.position = new PVector( cars[0].position.x - 20 * sin(cars[0].rotationY * PI / 180), -25, cars[0].position.y - 20 * cos(cars[0].rotationY * PI / 180));
+  //Vec2 cameraVec2 = new Vec2(camera.position.x, camera.position.z);
+  //println(pointInRectList(obstaclePos, obstacleW, obstacleL, obstaclePos.length, cameraVec2, 0));
+  //if(pointInRectList(obstaclePos, obstacleW, obstacleL, obstaclePos.length, cameraVec2, 0)){
+  //  Vec2 positionToAdd = findPointOutsideOfObstacle(cameraVec2);
+  //  camera.position.add(new PVector(positionToAdd.x, 0, positionToAdd.y));
+  //}
   camera.theta = PI + cars[0].rotationY * PI / 180;
   camera.phi = -0.2 + cameraYaw;
   if(time == 0){
+    surface.setTitle("Loading AI Car Pathways");
     testPRM();
     time+=1;
   }else{
+    surface.setTitle("Racing Game!");
     time+=1;
-    if(upDown && cameraYaw < 0.4){
-      cameraYaw += .005;
-    }
-    if(downDown && cameraYaw > -0.4){
-      cameraYaw -= .005;
-    }
+    //if(upDown && cameraYaw < 0.2){
+    //  cameraYaw += .005;
+    //}
+    //if(downDown && cameraYaw > -0.2){
+    //  cameraYaw -= .005;
+    //}
     if(dDown && (wDown || sDown)){
       cars[0].rotationAccel = -.2;
     }
@@ -685,45 +716,6 @@ void draw()
     box( 500, 10, 500 );
     popMatrix();
     
-    // make the four walls
-    stroke( 0,0, 0 );
-    fill( 255,255, 255 );
-    pushMatrix();
-    translate( 250, -10, 1 );
-    rotateZ(3.14);
-    box( 500, 10, 2 );
-    popMatrix();
-    
-    fill( 255,255, 255 );
-    pushMatrix();
-    translate( 250, -10, 499 );
-    rotateZ(3.14);
-    box( 500, 10, 2 );
-    popMatrix();
-    
-    fill( 255,255, 255 );
-    pushMatrix();
-    translate( 1, -10, 250 );
-     rotateZ(3.14);
-    box( 2, 10, 496 );
-    popMatrix();
-    
-    fill( 255,255, 255 );
-    pushMatrix();
-    translate( 499, -10, 250 );
-    rotateZ(3.14);
-    box( 2, 10, 496 );
-    popMatrix();
-    
-    
-    ////Draw graph
-    //stroke(0,0,0);
-    //strokeWeight(1);
-    //for (int i = 0; i < numNodes; i++){
-    //  for (int j : neighbors[i]){
-    //    line(nodePos[i].x,-10,nodePos[i].y,nodePos[j].x,-10,nodePos[j].y);
-    //  }
-    //}
     
     //starting/finish line
     for(int i = 0; i < 16; i++){
@@ -752,8 +744,7 @@ void draw()
       popMatrix();
     }
     
-   
-  
+    //meshes 
     car0Mesh.position = new PVector(carPos[0].x, -5, carPos[0].y);
     car0Mesh.rotation = new PVector(0, cars[0].rotationY, 180);
     car0Mesh.draw();
@@ -785,96 +776,137 @@ void draw()
         popMatrix();
       }
     }
-  }
-   //<>//
+  } //<>//
   
-    // num laps
-    pushMatrix();
-    translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
-    rotateY(camera.theta);
-    hint(DISABLE_DEPTH_TEST);
-   
-    int numToDisplay = (int)(cars[0].numLaps + 1);
-    if(cars[0].finished){
-      fill(0,0,0);
-      textSize(40);
-      numToDisplay = 3;
-      text("FINISHED PLACE " + cars[0].place, -370, 0);
-    }
-     fill(255,100,100);
-    textSize(70);
-    text("LAP " + numToDisplay + "/3", 125, 0);
-    hint(ENABLE_DEPTH_TEST);
-    popMatrix();
-    
-    
-    //map
-    pushMatrix();
-    translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
-    rotateY(camera.theta);
-    hint(DISABLE_DEPTH_TEST);
-    rotateZ(PI / 2);
-    rotateX(PI / 2);
-    rotateY(PI / 2);
-    translate(-100,0,-100);
+  //GUI background
+  pushMatrix();
+  translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+  rotateY(camera.theta);
+  hint(DISABLE_DEPTH_TEST);
+  rotateZ(PI / 2);
+  rotateX(PI / 2);
+  rotateY(PI / 2);
+  
+  rotateX(PI/2);
+  fill(100,100,100, 100);
+  rect(500,120,-2000, -600);
+  hint(ENABLE_DEPTH_TEST);
+  popMatrix();
+  
+  
+  
+
+  // num laps
+  pushMatrix();
+  translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+  rotateY(camera.theta);
+  hint(DISABLE_DEPTH_TEST);
+  int numToDisplay = (int)(cars[0].numLaps + 1);
+  if(cars[0].finished && cars[0].place != 0){
+    fill(255,100,100);
+    textSize(40);
+    numToDisplay = 3;
+    text("FINISHED PLACE " + cars[0].place, -370, 110);
+  }
+  fill(255,100,100);
+  textSize(40);
+  text("TIME: " + (float)carTime / 1000.0 + " SECONDS", -390, 70);
+  textSize(60);
+  text("LAP " + numToDisplay + "/3", 170, 70);
+  hint(ENABLE_DEPTH_TEST);
+  popMatrix();
+  
+  
+  //map
+  pushMatrix();
+  translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), -80, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+  rotateY(camera.theta);
+  hint(DISABLE_DEPTH_TEST);
+  translate(30,110,0);
+  rotateZ(PI / 2);
+  rotateX(PI / 2);
+  rotateY(PI / 2);
+  
+  translate(-100,0,-100);
+
+  for(int i = 0; i < carPos.length; i++){
     fill( 0,255, 50 );
-    for(int i = 0; i < carPos.length; i++){
-      translate(carPos[i].x / 5, 0, carPos[i].y / 5);
-      sphere(2);
-      translate(-carPos[i].x / 5, 0, -carPos[i].y / 5);
+    translate(carPos[i].x / 5, 0, carPos[i].y / 5);
+    rotateX(PI/2);
+    if(cars[i].isUser){
+      fill( 255,255, 0 );
+      star(0, 0, 1.5, 3.5, 5); 
+    }else{
+      circle(0,0,5);
     }
-    for(int i = 0; i < obstaclePos.length; i++){
-      if(obstacleVisibility[i]){
-        noStroke();
-        fill( 255,0, 255 );
-        pushMatrix();
-        translate( obstaclePos[i].x / 5, 0, obstaclePos[i].y / 5 );
-        box( obstacleW[i] / 5, 8, obstacleL[i] / 5 );
-        popMatrix();
-      }
-    }
-    //starting/finish line
-    for(int i = 0; i < 16; i++){
-      if(i%2 == 0){
-        fill( 0,0, 0 );
-      }else{
-        fill( 255,255,255 );
-      }
+    //sphere(2);
+    rotateX(-PI/2);
+    translate(-carPos[i].x / 5, 0, -carPos[i].y / 5);
+  }
+  for(int i = 0; i < obstaclePos.length; i++){
+    if(obstacleVisibility[i]){
+      noStroke();
+      fill( 0,0, 0 );
       pushMatrix();
-      translate( (80- 5*i) / 5, 0, 82.5 /5);
-      //rotateZ(3.14);
-      box( 1, .6, 1 );
+      translate( obstaclePos[i].x / 5, 0, obstaclePos[i].y / 5 );
+      box( obstacleW[i] / 5, 8, obstacleL[i] / 5 );
       popMatrix();
     }
-    //starting/finish line
-    for(int i = 0; i < 16; i++){
-      if(i%2 == 1){
-        fill( 0,0, 0 );
-      }else{
-        fill( 255,255,255 );
-      }
-      pushMatrix();
-      translate( (80- 5*i) / 5, 0, 77.5 /5);
-      //rotateZ(3.14);
-      box( 1, .6, 1 );
-      popMatrix();
+  }
+  //starting/finish line
+  for(int i = 0; i < 16; i++){
+    if(i%2 == 0){
+      fill( 0,0, 0 );
+    }else{
+      fill( 255,255,255 );
     }
+    pushMatrix();
+    translate( (80- 5*i) / 5, 0, 82.5 /5);
+    //rotateZ(3.14);
+    box( 1, .6, 1 );
+    popMatrix();
+  }
+  //starting/finish line
+  for(int i = 0; i < 16; i++){
+    if(i%2 == 1){
+      fill( 0,0, 0 );
+    }else{
+      fill( 255,255,255 );
+    }
+    pushMatrix();
+    translate( (80- 5*i) / 5, 0, 77.5 /5);
+    //rotateZ(3.14);
+    box( 1, .6, 1 );
+    popMatrix();
+  }
+  hint(ENABLE_DEPTH_TEST);
+  popMatrix();
+  
+  if(paused){
+    pushMatrix();
+    translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), 0, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
+    rotateY(camera.theta);
+    hint(DISABLE_DEPTH_TEST);
+    textSize(70);
+    
+    fill(255,100,100);
+    text("PRESS SPACE TO RACE", -350, 100);
     hint(ENABLE_DEPTH_TEST);
     popMatrix();
-    
-    if(paused){
-      //print("Paused");
-      pushMatrix();
-      translate(cars[0].position.x + 500  * sin(cars[0].rotationY * PI / 180), 0, cars[0].position.y + 500 * cos(cars[0].rotationY * PI / 180)) ;
-      rotateY(camera.theta);
-      hint(DISABLE_DEPTH_TEST);
-      textSize(70);
-      
-      fill(255,100,100);
-      text("PRESS SPACE TO RACE", -350, 0);
-      hint(ENABLE_DEPTH_TEST);
-      popMatrix();
-    }
-    
-    
+  }
+}
+
+void star(float x, float y, float radius1, float radius2, int npoints) {
+  float angle = TWO_PI / npoints;
+  float halfAngle = angle/2.0;
+  beginShape();
+  for (float a = 0; a < TWO_PI; a += angle) {
+    float sx = x + cos(a) * radius2;
+    float sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a+halfAngle) * radius1;
+    sy = y + sin(a+halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
 }

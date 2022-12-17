@@ -54,7 +54,7 @@ Racing Simulator with AI opponents
     mountain to implement that wasn't necessary. The current adaptation works decently well and does not cause cars to get stuck on walls. 
 </p>
 
-<h4>ii. PRM</h4>
+<h4>ii. PRM and Uniform Cost Search</h4>
 <p>
     The AI cars move based on pathways that are generated from a Probabilistic Roadmap (PRM) implementation. The PRM builds this pathway by generating 500 random nodes 
     on the map, connecting these nodes, then finding a path through the connections from designated start and end positions. The start positions of the paths are the cars'
@@ -81,7 +81,15 @@ Racing Simulator with AI opponents
     the calculations that determine the movement. Velocity is preserved from timestep to timestep and is influenced by an acceleration vector that is generated based on 
     the current rotation of the car. 
 </p>
-<img height=100 width="auto" src="./images/carMotion.JPG">
+<img height=120 width="auto" src="./images/carMotion.JPG">
+
+<p>
+    The user controlls the car with the WASD keys. The car can only rotate if W or S is down. When A or D is down, the rotational aceleration is set to a nonzero number
+    to match which direction the car is to rotate. The AI cars rotation is determined by the algorithm shown below, found on a StackExchange post. This was a large 
+    issue in developing the AI car movement, as they kept rotating the wrong way for different desired angles. This was solved by adding 180 to the desired angle then 
+    setting the angle equal to the modulus of the angle at the end. 
+</p>
+<img height=120 width="auto" src="./images/AIRotations.JPG">
 
 <h2>III. Video Game Aspects</h2>
 

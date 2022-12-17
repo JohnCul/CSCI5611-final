@@ -13,6 +13,8 @@ Racing Simulator with AI opponents
     and rotational acceleration, and path planning to build a car racing environment. As seen above, the user races, using the WASD keys, against AI cars that 
     are driven by a PRM built with Uniform Cost Search path planning techniques. The first car to achieve three completed laps wins. There is a GUI that displays
     the time of the user's car, the number of laps completed, and a map of the track and all of the cars on it, with the user indicated with a yellow star. 
+    To play the game, open one of the files in the folder with the code in Processing and press the run button with any of the files open. It will take a few seconds
+    to load because generating the AI paths is time consuming.
 </p>
 <p>
     The track is built with processing's built-in rectangles and boxes, while the cars are sourced from the Google Drive of free models. Each car has a different
@@ -152,10 +154,12 @@ Racing Simulator with AI opponents
     of collision resolution can be found because it will be opposite of the side that the colliding corner was on. This can also be seen in the image in Section II.
 </p>
 <p>
-    After implementing collisions, I built the GUI. This was the last large major part of the simulation, and again was mostly guess-and-check work. Getting the GUI to 
-    face the car was the most difficult aspect, finding out how much to rotate and when to rotate, translate, and use the hint() function. The GUI is strange because
-    if the camera was in any other spot, you could see the GUI moving with the car in space. It is not glued to the user's screen, but floating above the car somewhere in space. 
-
+    After implementing collisions, I built the GUI and positioned the camera behind the user's car and facing the car. This was the last large major part of the simulation, 
+    and again was mostly guess-and-check work. Getting the GUI to face the car was the most difficult aspect, finding out how much to rotate and when to rotate, 
+    translate, and use the hint() function. The GUI is strange because if the camera was in any other spot, you could see the GUI moving with the car in space.
+    It is not glued to the user's screen, but floating above the car somewhere in space. The final form of the game can be seen from the video in Section I or by playing
+    it in processing.
+    
 </p>
 
 <h2>V. Peer Feedback</h2>

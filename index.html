@@ -71,17 +71,17 @@ Racing Simulator with AI opponents
 <p>
     In car movement, the AI cars move from node-to-node, keeping track of which node is next on their list to visit. There is path smoothing implemented, that allows
     the car to move past the desired node once it can see the node after it on the path. Once the cars get to the last node in the path, the path resets to target the first
-    node in the path. It's at this point that the car "completed" a lap. The car rotates toward the position of the next desired node. See the code snippit below to see
-    the calculations that determine the movement. Velocity is preserved from timestep to timestep and is influenced by an acceleration vector that is generated based on 
-    the current rotation of the car. 
+    node in the path. It's at this point that the car "completed" a lap. 
 </p>
-<img height=200 width="auto" src="./images/carMotion.JPG">
 
 <h4>iii. Car Movement</h4>
 <p>
     Each car's movement is determined by its physics and rotational physics. Rotational acceleration and normal acceleration determine their respective velocities, and
-    these determine their respective position updates. 
+    these determine their respective position updates. The car rotates toward the position of the next desired node. See the code snippit below to see
+    the calculations that determine the movement. Velocity is preserved from timestep to timestep and is influenced by an acceleration vector that is generated based on 
+    the current rotation of the car. 
 </p>
+<img height=100 width="auto" src="./images/carMotion.JPG">
 
 <h2>III. Video Game Aspects</h2>
 

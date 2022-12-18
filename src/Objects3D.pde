@@ -562,11 +562,10 @@ public void moveCars(){
       Vec2 rOpposite = carPos[i].minus(fourCorners[chosen]);
       Vec2 addedR = rHit.plus(rOpposite);
       addedR.normalize();
-      //Vec2 perpR = perpendicular(r);
-      cars[i].position.add(addedR.times(0.25));
+      cars[i].position.add(rHit.times(0.05));
+      float currentCarVelo = cars[i].velocity.mag() + 0.2;
       cars[i].velocity = new PVector(0,0,0);
-      
-      cars[i].velocity.add(new PVector(addedR.x * 0.5, 0, addedR.y * 0.5));
+      cars[i].velocity.add(new PVector(addedR.x * 0.3 * currentCarVelo, 0, addedR.y * 0.3 * currentCarVelo));
       carPos[i] = cars[i].position;
       
     }

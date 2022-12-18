@@ -164,9 +164,58 @@ Racing Simulator with AI opponents
 
 <h2>V. Peer Feedback</h2>
 <p>
-
+    The peer feedback was insightful but didn't impact much of the development of my project. I wasn't able to attend class for the Proposal Discussion and paper sharing,
+    so I didn't get much initial feedback on my idea. However, with the people who I talked with before starting the final project, they had the concern that my project
+    would be too much work in a short amount of time. I took this into account and started development very early, knocking out the harder parts of the project weeks 
+    before it was due.
+</p>
+<p>
+    The Progress Report feedback was very helpful because it gave me five different prospectives on my project's gameplay. They suggested that I make the AI cars faster
+    and harder to beat because my progress video showed how easy it was to beat them. I implemented different speeds for different cars and the competition is much better
+    now. Another piece of advice my peers had was making the track 3D. This would take lots of reconfiguring of different aspects of car movement and would overcomplicate
+    collision detection, so I decided to keep the track in 2D. 
+</p>
+<p>
+    Another large part of the peer feedback that drove my final implementation was the idea to make a map of the game on the GUI. I initially thought this would be 
+    vert hard, but it ended up being relatively easy because it's just a smaller version of the actual track itself with the car positions mapped inside of it. This
+    provided a clean look and better racing experience, bringing it closer to actual Mario Kart gameplay.
 </p>
 
 <h2>VI. Related Work</h2>
+<p>
+    There has been much recent development and research done on some of the techniques used in the project. As mentioned earlier, Sigurdson and Bultiko looked into using
+    machine learning and deep learning to train a network that uses different heuristics in different scenarios in real-time path planning. In development of my project, 
+    I initially wanted to use real-time path planning, changing the paths of each AI car based on where their position was, but the time it took for Uniform Cost Search to
+    find the shortest path was too large to implement it in real-time. I could've had a more local approach, finding a partial solution path at each timestep, but determining
+    a heuristic that keeps the cars on the correct path was too difficult to implement with the complicated obstacle course. Another approach I could've used was developed 
+    by Dubey, Sohn, Thrash, Hoelscher, and Kapadia by using hierarchical decision models to map indoor landmarks that a robot needs to navigate around. Using a version of
+    particle shooting, I could've potentially built a hierarchical structure for the AI cars to navigate inside of, building a local path in the direction of the open space.
+
+</p>
+
+<p>
+    One part of Mario Kart that makes the opponent CPUs fun to play against is the differences in their gameplay. Some try to bump others as much as they can, some race as
+    fast as they can, and some go for the most item boxes. While this was not implemented in my project, it could be a future extension of my project. Shergadwala, Teng, and Seif El-Nasr
+    looked at building player models based on player data, building different types of players based on how their interract with the game. Using this idea in the future, 
+    different CPU types could be built based on player data--number of collisions, number of items, average speed, average place--to make the simulation more competitive and
+    similar to Mario Kart. 
+</p>
 
 <h2>VII. Future Work</h2>
+<p>
+    
+</p>
+
+<h2>VIII. Works Cited</h2>
+<p>
+    Bhaumik, D., Khalifa, A., Green, M., & Togelius, J. (2020). Tree Search versus Optimization Approaches for Map Generation. Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment, 16(1), 24-30.
+</p>
+<p>
+    Rohit K. Dubey, Samuel S. Sohn, Tyler Thrash, Christoph Hoelscher, and Mubbasir Kapadia. 2019. Identifying Indoor Navigation Landmarks Using a Hierarchical Multi-Criteria Decision Framework. In Proceedings of the 12th ACM SIGGRAPH Conference on Motion, Interaction and Games (MIG '19). Association for Computing Machinery, New York, NY, USA, Article 15, 1–11.
+</p>
+<p>
+    Shergadwala, M. N., Teng, Z., & Seif El-Nasr, M. (2021). Can We Infer Player Behavior Tendencies from a Player’s Decision-Making Data? Integrating Theory of Mind to Player Modeling. Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment, 17(1), 195-202.
+</p>
+<p>
+    Sigurdson, D., & Bulitko, V. (2021). Deep Learning for Real-Time Heuristic Search Algorithm Selection. Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment, 13(1), 108-114.
+</p>
